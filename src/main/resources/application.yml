@@ -1,0 +1,37 @@
+spring:
+    application:
+        name: permission-based
+    datasource:
+        url: jdbc:mysql://localhost:3306/permission_based
+        username: root
+        password:
+    jpa:
+        properties:
+            hibernate:
+                default_schema: permission_based
+        database-platform: org.hibernate.dialect.MySQLDialect
+        hibernate:
+            ddl-auto: update
+
+
+server:
+    port: 8091
+    servlet:
+        context-path: /api
+
+
+app:
+    jwt:
+        secret: dudechangeme
+        expiration: 86400000 # 24 hours
+        refreshExpiration: 604800000 # 7 days
+
+logging:
+    file:
+        name: logs/app.log
+    level:
+        root: ERROR
+        az.qala: INFO     # show your app logs
+        org.hibernate: ERROR
+        org.springframework: ERROR
+        com.zaxxer.hikari: ERROR
