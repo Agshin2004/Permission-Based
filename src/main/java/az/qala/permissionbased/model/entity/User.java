@@ -11,6 +11,7 @@ import org.hibernate.annotations.GenericGenerator;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Table(name = "users")
@@ -23,6 +24,17 @@ public class User {
     public static final String EMAIL_FIELD = "email";
     public static final String DELETED_FIELD = "deleted";
 
+    public User(String username, String email, String password) {
+        this.username = username;
+        this.email = email;
+        this.password = password;
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    // Stores the UUID as 16-byte binary in the database for efficiency.
+    // 'columnDefinition = "BINARY(16)"' ensures exact SQL type instead of default VARCHAR.
+    // Hibernate automatically converts between the 16-byte binary (shown as 0x... in DB) and the Java UUID object.
     @Id
     @GeneratedValue(generator = "UUID")
     @GenericGenerator(
@@ -30,7 +42,8 @@ public class User {
             strategy = "org.hibernate.id.UUIDGenerator"
     )
     @Column(name = "id", updatable = false, nullable = false, columnDefinition = "BINARY(16)")
-    private Integer id;
+//    private String id;
+    private UUID id;
 
     @Size(max = 30)
     @Column(nullable = false, length = 30)
@@ -40,15 +53,14 @@ public class User {
     @Column(nullable = false, length = 50)
     private String email;
 
-    @Size(max = 50)
-    @Column(nullable = false, length = 50)
+    @Column(nullable = false)
     private String password;
 
-    @Column(nullable = false)
-    private LocalDateTime created = LocalDateTime.now();
+    @Column(nullable = false, name = "created_at")
+    private LocalDateTime createdAt = LocalDateTime.now();
 
-    @Column(nullable = false)
-    private LocalDateTime updated = LocalDateTime.now();
+    @Column(nullable = false, name = "updated_at")
+    private LocalDateTime updatedAt = LocalDateTime.now();
 
     @Column(name = "last_login")
     private LocalDateTime lastLogin;
@@ -58,7 +70,7 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "registration_status", nullable = false)
-    private RegistrationStatus registrationStatus;
+    private RegistrationStatus registrationStatus = RegistrationStatus.INACTIVE;
 
     @ManyToMany
     @JoinTable(

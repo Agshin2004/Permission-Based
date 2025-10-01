@@ -22,7 +22,7 @@ server:
 
 app:
     jwt:
-        secret: dudechangeme
+        secret: "base64-encoded-32-byte-or-longer-string"
         expiration: 86400000 # 24 hours
         refreshExpiration: 604800000 # 7 days
 

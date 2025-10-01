@@ -2,6 +2,7 @@ package az.qala.permissionbased.model.entity;
 
 
 import az.qala.permissionbased.model.enums.UserRoles;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -33,6 +34,7 @@ public class Role {
     private LocalDateTime createdAt = LocalDateTime.now();
 
     @ManyToMany(fetch = FetchType.LAZY, mappedBy = "roles", cascade = CascadeType.MERGE)
+    @JsonIgnore
     // cascade = MERGE -> when Role is updated (merged), changes to its Users are also merged
     private List<User> users = new ArrayList<>();
 }
