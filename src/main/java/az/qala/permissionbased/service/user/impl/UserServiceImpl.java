@@ -1,18 +1,23 @@
 package az.qala.permissionbased.service.user.impl;
 
 import az.qala.permissionbased.constants.ApiErrorMessage;
+import az.qala.permissionbased.constants.ApplicationConstants;
 import az.qala.permissionbased.exception.DataExistsException;
 import az.qala.permissionbased.exception.DataNotFoundException;
-import az.qala.permissionbased.mapper.UserMapper;
+import az.qala.permissionbased.model.dto.RoleDTO;
 import az.qala.permissionbased.model.dto.UserDTO;
 import az.qala.permissionbased.model.entity.Role;
 import az.qala.permissionbased.model.entity.User;
 import az.qala.permissionbased.model.enums.UserRoles;
-import az.qala.permissionbased.model.request.auth.RegisterResponse;
+import az.qala.permissionbased.model.request.auth.ApproveUserRequest;
+import az.qala.permissionbased.model.request.auth.LoginRequest;
+import az.qala.permissionbased.model.request.auth.RegisterRequest;
 import az.qala.permissionbased.model.response.GenericResponse;
+import az.qala.permissionbased.model.response.auth.LoginResponse;
 import az.qala.permissionbased.repository.RoleRepository;
 import az.qala.permissionbased.repository.UserRepository;
 import az.qala.permissionbased.service.user.UserService;
+import az.qala.permissionbased.utils.JwtUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -29,29 +34,28 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
-    private final UserMapper userMapper;
+    private final JwtUtils jwtUtils;
 
     @Override
-    public GenericResponse<UserDTO> createUser(RegisterResponse registerResponse) {
-        userRepository.findByEmail(registerResponse.getEmail())
+    public GenericResponse<UserDTO> createUser(RegisterRequest registerRequest) {
+        userRepository.findByEmail(registerRequest.getEmail())
                 .ifPresent(user -> {
-                    throw new DataExistsException(ApiErrorMessage.EMAIL_ALREADY_EXISTS.getMessage(registerResponse.getEmail()));
+                    throw new DataExistsException(ApiErrorMessage.EMAIL_ALREADY_EXISTS.getMessage(registerRequest.getEmail()));
                 });
 
-        userRepository.findByUsername(registerResponse.getUsername())
+        userRepository.findByUsername(registerRequest.getUsername())
                 .ifPresent(user -> {
-                    throw new DataExistsException(ApiErrorMessage.USERNAME_ALREADY_EXISTS.getMessage(registerResponse.getUsername()));
+                    throw new DataExistsException(ApiErrorMessage.USERNAME_ALREADY_EXISTS.getMessage(registerRequest.getUsername()));
                 });
 
 
         User user = new User(
-                registerResponse.getUsername(),
-                registerResponse.getEmail(),
-                passwordEncoder.encode(registerResponse.getPassword())
+                registerRequest.getUsername(),
+                registerRequest.getEmail(),
+                passwordEncoder.encode(registerRequest.getPassword())
         );
 
-        List<UserRoles> requestRoles = registerResponse.getRoles();
-
+        List<UserRoles> requestRoles = registerRequest.getRoles();
         List<Role> roles = new ArrayList<>();
 
         if (requestRoles == null) {
@@ -63,6 +67,7 @@ public class UserServiceImpl implements UserService {
                     .orElseThrow(() -> new DataNotFoundException(
                             ApiErrorMessage.ROLE_NOT_FOUND.getMessage(r.getRole())
                     ));
+
             roles.add(role);
         }
 
@@ -71,8 +76,50 @@ public class UserServiceImpl implements UserService {
 
         userRepository.save(user);
 
-        UserDTO userDTO = userMapper.userToUserDto(user);
+        String jwt = jwtUtils.generateToken(user);
 
-        return GenericResponse.success("User created", userDTO, 200);
+        List<RoleDTO> roleDtos = roles.stream().map((role) -> {
+                    return new RoleDTO(role.getId(), role.getRoleName());
+                })
+                .toList();
+
+        UserDTO userDTO = UserDTO.builder()
+                .id(user.getId())
+                .username(user.getUsername())
+                .email(user.getEmail())
+                .createdAt(user.getCreatedAt())
+                .lastLogin(user.getLastLogin())
+                .registrationStatus(user.getRegistrationStatus())
+                .jwt(jwt)
+                .roles(roleDtos)
+                .build();
+
+        return GenericResponse.success("User created successfully", userDTO, 200);
+    }
+
+    public GenericResponse<LoginResponse> loginUser(LoginRequest request) {
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new DataNotFoundException(ApiErrorMessage.WRONG_CREDENTIALS.getMessage()));
+
+        String jwt = jwtUtils.generateToken(user);
+
+        boolean passwordMatches = passwordEncoder.matches(request.getPassword(), user.getPassword());
+
+        if (!passwordMatches) {
+            throw new DataNotFoundException(ApiErrorMessage.WRONG_CREDENTIALS.getMessage());
+        }
+
+        LoginResponse response = new LoginResponse(jwt);
+
+        return GenericResponse.success(ApplicationConstants.SUCCESS, response, 200);
+    }
+
+    public GenericResponse<String> approveUser(ApproveUserRequest request) {
+        User user = userRepository.findById(request.getUserId())
+                .orElseThrow(() -> new DataNotFoundException(ApiErrorMessage.USER_NOT_FOUND.getMessage(request.getUserId().toString()))); // check without toString
+
+        user.setRegistrationStatus(request.getRegistrationStatus());
+
+        return GenericResponse.success(ApplicationConstants.SUCCESS, "User status set to " + request.getRegistrationStatus().name(), 200);
     }
 }

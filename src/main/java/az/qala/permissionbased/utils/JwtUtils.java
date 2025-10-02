@@ -42,10 +42,15 @@ public class JwtUtils {
         claims.put(AuthenticationConstants.USERNAME, user.getUsername());
         claims.put(AuthenticationConstants.USER_EMAIL, user.getEmail());
         claims.put(AuthenticationConstants.USER_REGISTRATION_STATUS, user.getRegistrationStatus());
-        claims.put(AuthenticationConstants.LAST_UPDATE, LocalDateTime.now().toString());
+        claims.put(AuthenticationConstants.LAST_LOGIN, LocalDateTime.now().toString());
 
         List<UserRoles> rolesList = user.getRoles().stream()
-                .map(Role::getRoleName)
+                .map((role) -> {
+                    // note that conversion (meaning we can save to List<UserRoles>)
+                    // happens because roleName is enum and when we fetch that jpa converts it automatically to UserRoles enum
+
+                    return role.getRoleName(); // == Role::getRoleName
+                })
                 .toList();
 
 

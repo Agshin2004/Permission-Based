@@ -15,7 +15,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class RegisterResponse implements Serializable {
+public class RegisterRequest implements Serializable {
     @Size(max = 32)
     @NotBlank(message = "username cannot be empty")
     private String username;

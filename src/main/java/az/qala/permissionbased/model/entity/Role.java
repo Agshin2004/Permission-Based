@@ -23,6 +23,8 @@ public class Role {
     private Long id;
 
 
+    // When saving → write roleName.roleName() to DB ("ADMIN", "USER").
+    // When reading → take the string from DB ("ADMIN") and convert it back into UserRoles.ADMIN.
     @Enumerated(EnumType.STRING)
     @Column(name = "role_name", nullable = false)
     private UserRoles roleName = UserRoles.USER;
