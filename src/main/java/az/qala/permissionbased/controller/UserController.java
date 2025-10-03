@@ -1,19 +1,25 @@
 package az.qala.permissionbased.controller;
 
+import az.qala.permissionbased.config.CustomUserDetails;
 import az.qala.permissionbased.model.dto.UserDTO;
-import az.qala.permissionbased.model.request.auth.ApproveUserRequest;
-import az.qala.permissionbased.model.request.auth.LoginRequest;
-import az.qala.permissionbased.model.request.auth.RegisterRequest;
+import az.qala.permissionbased.model.request.user.ApproveUserRequest;
+import az.qala.permissionbased.model.request.user.LoginRequest;
+import az.qala.permissionbased.model.request.user.RegisterRequest;
+import az.qala.permissionbased.model.request.user.UploadProfilePictureRequest;
 import az.qala.permissionbased.model.response.GenericResponse;
-import az.qala.permissionbased.model.response.auth.LoginResponse;
+import az.qala.permissionbased.model.response.user.LoginResponse;
 import az.qala.permissionbased.service.user.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.Map;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/user")
 public class UserController {
     @Autowired
     UserService userService;
@@ -38,4 +44,15 @@ public class UserController {
 
         return ResponseEntity.ok(response);
     }
+
+    @PostMapping("/upload-profile-picture")
+    public ResponseEntity<GenericResponse<Map<String, String>>> uploadProfilePicture(
+            @ModelAttribute UploadProfilePictureRequest uploadProfilePictureRequest,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        GenericResponse<Map<String, String>> response = userService.saveProfilePicture(uploadProfilePictureRequest, userDetails);
+
+        return ResponseEntity.ok(response);
+    }
+
+    public ResponseEntity<GenericResponse<Map<String, String>>> addUserProfileDetails() {}
 }

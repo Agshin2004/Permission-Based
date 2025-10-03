@@ -1,8 +1,7 @@
-package az.qala.permissionbased.model.request.auth;
+package az.qala.permissionbased.model.request.user;
 
 import az.qala.permissionbased.model.enums.RegistrationStatus;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

@@ -8,6 +8,7 @@ import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
@@ -81,16 +82,22 @@ public class JwtUtils {
                 .parseClaimsJws(token)
                 .getBody();
 
-        return claims.getSubject();
+        return claims.get("username", String.class);
     }
 
-    public boolean validateToken(String token) {
+    public boolean validateToken(String token, UserDetails userDetails) {
         try {
-            Jws<Claims> claims = Jwts.parserBuilder()
+            Claims claims = Jwts.parserBuilder()
                     .setSigningKey(secretKey)
                     .build()
-                    .parseClaimsJws(token);
-            return !claims.getBody().getExpiration().before(new Date());
+                    .parseClaimsJws(token)
+                    .getBody();
+
+            String usernameFromToken = claims.get("username", String.class);
+            String usernameFromUserDetails = userDetails.getUsername();
+
+
+            return (usernameFromToken.equals(usernameFromUserDetails) && !claims.getExpiration().before(new Date()));
         } catch (JwtException | IllegalArgumentException e) {
             return false;
         }

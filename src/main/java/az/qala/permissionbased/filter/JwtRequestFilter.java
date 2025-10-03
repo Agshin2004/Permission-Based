@@ -46,14 +46,12 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             } catch (ExpiredJwtException e) {
                 log.error("JWT expired", e);
             }
-
         }
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
-            System.out.println("here1");
-            if (jwtUtils.validateToken(jwtToken)) {
-                System.out.println("here2");
+            if (jwtUtils.validateToken(jwtToken, userDetails)) {
+
                 UsernamePasswordAuthenticationToken authToken =
                         new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));

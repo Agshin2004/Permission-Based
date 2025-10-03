@@ -1,4 +1,4 @@
-package az.qala.permissionbased.model.response.auth;
+package az.qala.permissionbased.model.response.user;
 
 import lombok.Data;
 import lombok.RequiredArgsConstructor;

@@ -1,5 +1,6 @@
 package az.qala.permissionbased.model.entity;
 
+import az.qala.permissionbased.model.entityListeners.UserEntityListener;
 import az.qala.permissionbased.model.enums.RegistrationStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
@@ -14,6 +15,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Entity
+@EntityListeners(UserEntityListener.class)
 @Table(name = "users")
 @Getter
 @Setter
@@ -72,13 +74,17 @@ public class User {
     @Column(name = "registration_status", nullable = false)
     private RegistrationStatus registrationStatus = RegistrationStatus.INACTIVE;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "users_roles",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id")
     )
     private List<Role> roles;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "user_profile_id", referencedColumnName = "id")
+    private UserProfile profile;
 
     // Helper method to add a role
     public void addRole(Role role) {

@@ -1,5 +1,7 @@
 package az.qala.permissionbased.service.user.impl;
 
+import az.qala.permissionbased.config.CustomUserDetails;
+import az.qala.permissionbased.config.CustomUserDetailsService;
 import az.qala.permissionbased.constants.ApiErrorMessage;
 import az.qala.permissionbased.constants.ApplicationConstants;
 import az.qala.permissionbased.exception.DataExistsException;
@@ -9,23 +11,31 @@ import az.qala.permissionbased.model.dto.UserDTO;
 import az.qala.permissionbased.model.entity.Role;
 import az.qala.permissionbased.model.entity.User;
 import az.qala.permissionbased.model.enums.UserRoles;
-import az.qala.permissionbased.model.request.auth.ApproveUserRequest;
-import az.qala.permissionbased.model.request.auth.LoginRequest;
-import az.qala.permissionbased.model.request.auth.RegisterRequest;
+import az.qala.permissionbased.model.request.user.ApproveUserRequest;
+import az.qala.permissionbased.model.request.user.LoginRequest;
+import az.qala.permissionbased.model.request.user.RegisterRequest;
+import az.qala.permissionbased.model.request.user.UploadProfilePictureRequest;
 import az.qala.permissionbased.model.response.GenericResponse;
-import az.qala.permissionbased.model.response.auth.LoginResponse;
+import az.qala.permissionbased.model.response.user.LoginResponse;
 import az.qala.permissionbased.repository.RoleRepository;
 import az.qala.permissionbased.repository.UserRepository;
 import az.qala.permissionbased.service.user.UserService;
 import az.qala.permissionbased.utils.JwtUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -121,5 +131,49 @@ public class UserServiceImpl implements UserService {
         user.setRegistrationStatus(request.getRegistrationStatus());
 
         return GenericResponse.success(ApplicationConstants.SUCCESS, "User status set to " + request.getRegistrationStatus().name(), 200);
+    }
+
+
+    @Override
+    public GenericResponse<Map<String, String>> saveProfilePicture(
+            UploadProfilePictureRequest uploadProfilePictureRequest,
+            CustomUserDetails userDetails) {
+
+        MultipartFile file = uploadProfilePictureRequest.getFile();
+        String filename = uploadProfilePictureRequest.getFilename();
+
+        User user = userDetails.getUser();
+
+        try {
+            String uploadDir = new File("uploads").getAbsolutePath();
+            File directory = new File(uploadDir);
+            if (!directory.exists()) {
+                directory.mkdirs();
+            }
+
+
+            String[] extSplit = file.getOriginalFilename().split("\\.");
+            String fileExt; // not initializing, only local variables throw error when we wanna access it before initilizing, fields are initialized to null by default
+
+            if (extSplit.length > 1) {
+                fileExt = extSplit[1];
+            } else {
+                fileExt = "jpg";
+            }
+
+            String filepath = uploadDir + File.separator + (filename != null ? filename.concat(".").concat(fileExt) : file.getOriginalFilename());
+
+            file.transferTo(new File(filepath));
+
+            user.getProfile().setProfilePictureUrl(filepath);
+            userRepository.save(user);
+
+            Map<String, String> response = new HashMap<>();
+            response.put("uploadPath", filepath);
+
+            return GenericResponse.success(ApplicationConstants.SUCCESS, response, HttpStatus.OK.value());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

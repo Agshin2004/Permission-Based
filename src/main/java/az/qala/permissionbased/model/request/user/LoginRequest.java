@@ -1,4 +1,4 @@
-package az.qala.permissionbased.model.request.auth;
+package az.qala.permissionbased.model.request.user;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

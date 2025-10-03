@@ -1,4 +1,4 @@
-package az.qala.permissionbased.model.request.auth;
+package az.qala.permissionbased.model.request.user;
 
 import az.qala.permissionbased.model.enums.UserRoles;
 import az.qala.permissionbased.validator.annot.ValidRoles;
