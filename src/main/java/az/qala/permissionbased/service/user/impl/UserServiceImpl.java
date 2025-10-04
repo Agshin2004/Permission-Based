@@ -10,11 +10,9 @@ import az.qala.permissionbased.model.dto.RoleDTO;
 import az.qala.permissionbased.model.dto.UserDTO;
 import az.qala.permissionbased.model.entity.Role;
 import az.qala.permissionbased.model.entity.User;
+import az.qala.permissionbased.model.entity.UserProfile;
 import az.qala.permissionbased.model.enums.UserRoles;
-import az.qala.permissionbased.model.request.user.ApproveUserRequest;
-import az.qala.permissionbased.model.request.user.LoginRequest;
-import az.qala.permissionbased.model.request.user.RegisterRequest;
-import az.qala.permissionbased.model.request.user.UploadProfilePictureRequest;
+import az.qala.permissionbased.model.request.user.*;
 import az.qala.permissionbased.model.response.GenericResponse;
 import az.qala.permissionbased.model.response.user.LoginResponse;
 import az.qala.permissionbased.repository.RoleRepository;
@@ -175,5 +173,46 @@ public class UserServiceImpl implements UserService {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public GenericResponse<Map<String, Boolean>> addUserProfileDetails(
+            UserProfileUpdateRequest userProfileUpdateRequest,
+            CustomUserDetails userDetails
+    ) {
+        User user = userDetails.getUser();
+        UserProfile profile = user.getProfile();
+
+        // NOT USING MAPSTRUCT ON PURPOSE IN THIS PROJECT!
+        Optional.ofNullable(userProfileUpdateRequest.getFirstName()).ifPresent(profile::setFirstName);
+        Optional.ofNullable(userProfileUpdateRequest.getLastName()).ifPresent(profile::setLastName);
+        Optional.ofNullable(userProfileUpdateRequest.getDateOfBirth()).ifPresent(profile::setDateOfBirth);
+        Optional.ofNullable(userProfileUpdateRequest.getGender()).ifPresent(profile::setGender);
+        Optional.ofNullable(userProfileUpdateRequest.getPhoneNumber()).ifPresent(profile::setPhoneNumber);
+        Optional.ofNullable(userProfileUpdateRequest.getAddress()).ifPresent(profile::setAddress);
+        Optional.ofNullable(userProfileUpdateRequest.getCity()).ifPresent(profile::setCity);
+        Optional.ofNullable(userProfileUpdateRequest.getPostalCode()).ifPresent(profile::setPostalCode);
+        Optional.ofNullable(userProfileUpdateRequest.getJobTitle()).ifPresent(profile::setJobTitle);
+        Optional.ofNullable(userProfileUpdateRequest.getOrganization()).ifPresent(profile::setOrganization);
+
+
+        if (userProfileUpdateRequest.getSocialLinks() != null) {
+            if (profile.getSocialLinks() == null) {
+                profile.setSocialLinks(new HashMap<>());
+            }
+
+            userProfileUpdateRequest.getSocialLinks().forEach((k, v) -> {
+                if (v != null) {
+                        profile.getSocialLinks().put(k, v);
+                }
+            });
+        }
+
+        userRepository.save(user);
+
+        Map<String, Boolean> response = new HashMap<>();
+        response.put("success", true);
+
+        return GenericResponse.success("success", response, HttpStatus.OK.value());
+
     }
 }

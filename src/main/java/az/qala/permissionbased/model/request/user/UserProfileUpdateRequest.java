@@ -2,11 +2,13 @@ package az.qala.permissionbased.model.request.user;
 
 import az.qala.permissionbased.model.enums.Gender;
 import az.qala.permissionbased.model.enums.Socials;
+import lombok.Data;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Map;
 
+@Data
 public class UserProfileUpdateRequest implements Serializable {
     private String firstName;
     private String lastName;
@@ -16,7 +18,6 @@ public class UserProfileUpdateRequest implements Serializable {
     private String address;
     private String city;
     private String postalCode;
-    private String profilePictureUrl;
     private String jobTitle;
     private String organization;
     // will be added like: "socialLinks": {"GITHUB": "..."}

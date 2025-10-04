@@ -2,10 +2,7 @@ package az.qala.permissionbased.controller;
 
 import az.qala.permissionbased.config.CustomUserDetails;
 import az.qala.permissionbased.model.dto.UserDTO;
-import az.qala.permissionbased.model.request.user.ApproveUserRequest;
-import az.qala.permissionbased.model.request.user.LoginRequest;
-import az.qala.permissionbased.model.request.user.RegisterRequest;
-import az.qala.permissionbased.model.request.user.UploadProfilePictureRequest;
+import az.qala.permissionbased.model.request.user.*;
 import az.qala.permissionbased.model.response.GenericResponse;
 import az.qala.permissionbased.model.response.user.LoginResponse;
 import az.qala.permissionbased.service.user.UserService;
@@ -54,5 +51,13 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-    public ResponseEntity<GenericResponse<Map<String, String>>> addUserProfileDetails() {}
+    @PostMapping("/details")
+    public ResponseEntity<GenericResponse<Map<String, Boolean>>> addUserProfileDetails(
+            @Valid @RequestBody UserProfileUpdateRequest userProfileUpdateRequest,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        GenericResponse<Map<String, Boolean>> response = userService.addUserProfileDetails(userProfileUpdateRequest, userDetails);
+
+        return ResponseEntity.ok(response);
+    }
 }

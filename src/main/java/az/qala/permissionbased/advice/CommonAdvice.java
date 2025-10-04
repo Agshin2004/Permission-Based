@@ -17,8 +17,10 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @ControllerAdvice
@@ -52,14 +54,28 @@ public class CommonAdvice {
         return ResponseEntity.ok(GenericResponse.success("failed", errors, 400));
     }
 
-    // Handles JSON parse errors (like invalid enum value, invalid UUID, etc.)
+    // handler for jackson when it cannot parse enum for example
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<BadRequestResponse> handleInvalidFormat(HttpMessageNotReadableException ex, HttpServletRequest request) {
 
-        var response = new BadRequestResponse(ex.getMessage(), request.getRequestURI());
-        return ResponseEntity.badRequest().body(response);
+        Throwable cause = ex.getCause();
+        String path = request.getRequestURI();
+
+        if (cause instanceof com.fasterxml.jackson.databind.exc.InvalidFormatException ife && ife.getTargetType().isEnum()) {
+            String validValues = Arrays.stream(ife.getTargetType().getEnumConstants())
+                    .map(str -> str.toString())
+                    .collect(Collectors.joining(", "));
+
+
+            String message = "Invalud value: " + ife.getValue() + " Allowed values are: [" + validValues + "]";
+
+            return ResponseEntity.badRequest().body(new BadRequestResponse(message, path));
+        }
+
+        return ResponseEntity.badRequest().body(new BadRequestResponse("Invalid JSON", path));
 
     }
+
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiError> handleAllExceptions(Exception ex, HttpServletRequest request) {
