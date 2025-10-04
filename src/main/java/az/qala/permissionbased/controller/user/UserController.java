@@ -1,4 +1,4 @@
-package az.qala.permissionbased.controller;
+package az.qala.permissionbased.controller.user;
 
 import az.qala.permissionbased.config.CustomUserDetails;
 import az.qala.permissionbased.model.dto.UserDTO;
@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Map;
 
