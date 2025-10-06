@@ -1,11 +1,10 @@
 package az.qala.permissionbased.model.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Data;
 
+@Entity
+@Table(name = "workspace")
 @Data
 public class Workspace extends TenantEntity {
     @Id

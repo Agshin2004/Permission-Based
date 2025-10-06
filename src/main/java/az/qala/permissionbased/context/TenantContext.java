@@ -1,4 +1,4 @@
-package az.qala.permissionbased.tenant;
+package az.qala.permissionbased.context;
 
 
 /**

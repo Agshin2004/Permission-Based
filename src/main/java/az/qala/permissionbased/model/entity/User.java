@@ -12,6 +12,7 @@ import org.hibernate.annotations.GenericGenerator;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -85,6 +86,14 @@ public class User {
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "user_profile_id", referencedColumnName = "id")
     private UserProfile profile;
+
+    @ManyToMany
+    @JoinTable(
+            name = "user_tenants",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "tenant_id")
+    )
+    private Set<Tenant> tenants;
 
     // Helper method to add a role
     public void addRole(Role role) {

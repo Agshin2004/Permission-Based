@@ -1,6 +1,6 @@
 package az.qala.permissionbased.model.entity;
 
-import az.qala.permissionbased.tenant.TenantContext;
+import az.qala.permissionbased.context.TenantContext;
 import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.PrePersist;
