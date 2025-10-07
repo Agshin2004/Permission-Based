@@ -27,12 +27,18 @@ import java.util.stream.Collectors;
 public class CommonAdvice {
 
     @ExceptionHandler(DataExistsException.class)
-    public ResponseEntity<String> handleDataExists(DataExistsException ex) {
+    public ResponseEntity<ApiError> handleDataExists(DataExistsException ex, HttpServletRequest request) {
         log.info("Exception caught in handleNotFound", ex);
+
+        ApiError apiError = new ApiError(
+                ex.getMessage(),
+                request.getRequestURI(),
+                LocalDateTime.now()
+        );
 
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
-                .body(ex.getMessage());
+                .body(apiError);
     }
 
     @ExceptionHandler(DataNotFoundException.class)

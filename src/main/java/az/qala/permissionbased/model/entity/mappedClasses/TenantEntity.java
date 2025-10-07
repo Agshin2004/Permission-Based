@@ -1,4 +1,4 @@
-package az.qala.permissionbased.model.entity;
+package az.qala.permissionbased.model.entity.mappedClasses;
 
 import az.qala.permissionbased.context.TenantContext;
 import jakarta.persistence.Column;
@@ -9,8 +9,8 @@ import lombok.Data;
 // NOTE: MappedSuperclass entites do not get a table, all entites that extend it will have columns from this entity
 @MappedSuperclass
 @Data
-public class TenantEntity {
-    @Column(name = "tenant_id", nullable = false, updatable = false)
+public abstract class TenantEntity {
+    @Column(name = "tenant_id", nullable = false, updatable = false, unique = true)
     private String tenantId;
 
     @PrePersist

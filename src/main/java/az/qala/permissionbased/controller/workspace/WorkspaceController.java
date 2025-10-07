@@ -1,4 +1,4 @@
-package az.qala.permissionbased.controller.Workspace;
+package az.qala.permissionbased.controller.workspace;
 
 import az.qala.permissionbased.model.entity.Workspace;
 import az.qala.permissionbased.service.tenant.WorkspaceServiceImpl;
@@ -15,15 +15,16 @@ public class WorkspaceController {
     WorkspaceServiceImpl workspaceService;
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getById(@PathVariable Long id) {
-        Optional<Workspace> byId = workspaceService.findById(id);
+    public ResponseEntity<Workspace> getById(@PathVariable Long id) {
+        Workspace byId = workspaceService.findById(id);
 
         return ResponseEntity.ok(byId);
     }
 
     @PostMapping
-    public ResponseEntity<?> create(@RequestBody Workspace workspace) {
-        Workspace created = workspaceService.create(workspace).get();
+    public ResponseEntity<Workspace> create(@RequestBody Workspace workspace) {
+        Workspace created = workspaceService.create(workspace);
+
         return ResponseEntity.ok(created);
     }
 }

@@ -15,7 +15,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findById(UUID uuid);
 
     @Query("""
-                    SELECT CASE WHEN COUNT(t) > 0 THEN TRUE ELSE FALSE END 
+                    SELECT CASE WHEN COUNT(t) > 0 THEN TRUE ELSE FALSE END
                     FROM User u
                     JOIN u.tenants t
                     WHERE u.id = :userId AND t.id = :tenantId

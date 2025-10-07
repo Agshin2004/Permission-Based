@@ -1,6 +1,9 @@
 package az.qala.permissionbased.service.tenant;
 
+import az.qala.permissionbased.constants.ApiErrorMessage;
+import az.qala.permissionbased.exception.DataNotFoundException;
 import az.qala.permissionbased.model.entity.Workspace;
+import az.qala.permissionbased.repository.UserRepository;
 import az.qala.permissionbased.repository.WorkspaceRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -10,14 +13,16 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class WorkspaceServiceImpl {
-    private final WorkspaceRepository repo;
+    private final WorkspaceRepository workspaceRepository;
+    private final UserRepository userRepository;
 
-    public Optional<Workspace> findById(Long id) {
-        return repo.findById(id);
+    public Workspace findById(Long id) {
+        return workspaceRepository.findById(id).orElseThrow(() -> new DataNotFoundException(ApiErrorMessage.NOT_FOUND.getMessage()));
     }
 
-    public Optional<Workspace> create(Workspace workspace) {
-        Workspace saved = repo.save(workspace);
-        return Optional.ofNullable(saved);
+    public Workspace create(Workspace workspace) {
+        return workspaceRepository.save(workspace);
     }
+
+
 }

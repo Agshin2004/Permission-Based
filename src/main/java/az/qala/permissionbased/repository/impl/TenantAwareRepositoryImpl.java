@@ -1,6 +1,6 @@
 package az.qala.permissionbased.repository.impl;
 
-import az.qala.permissionbased.model.entity.TenantEntity;
+import az.qala.permissionbased.model.entity.mappedClasses.TenantEntity;
 import az.qala.permissionbased.repository.TenantAwareRepository;
 import az.qala.permissionbased.context.TenantContext;
 import jakarta.persistence.EntityManager;

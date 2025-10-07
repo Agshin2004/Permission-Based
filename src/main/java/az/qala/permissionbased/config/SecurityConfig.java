@@ -1,7 +1,7 @@
 package az.qala.permissionbased.config;
 
 import az.qala.permissionbased.filter.JwtRequestFilter;
-import az.qala.permissionbased.filter.TenantFilter;
+//import az.qala.permissionbased.filter.TenantFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -28,8 +28,8 @@ public class SecurityConfig {
     @Autowired
     private JwtRequestFilter jwtRequestFilter;
 
-    @Autowired
-    private TenantFilter tenantFilter;
+//    @Autowired
+//    private TenantFilter tenantFilter;
 
     @Autowired
     private CustomUserDetailsService customUserDetailsService;
@@ -55,8 +55,8 @@ public class SecurityConfig {
                         .requestMatchers("/chat/**").permitAll()
                         .anyRequest().authenticated()
                 )
-                .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(tenantFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
+                //.addFilterBefore(tenantFilter, UsernamePasswordAuthenticationFilter.class); // turned tenant specific features off for now
 
         return http.build();
     }
