@@ -1,6 +1,7 @@
 package az.qala.permissionbased.model.entity;
 
 import az.qala.permissionbased.model.entity.mappedClasses.DateTimeEntity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,7 +18,7 @@ public class Post extends DateTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "title", nullable = false)
+    @Column(name = "title", unique = true)
     private String title;
 
     @Column(name = "description", columnDefinition = "MEDIUMTEXT")

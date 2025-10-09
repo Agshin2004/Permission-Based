@@ -1,52 +1,67 @@
 package az.qala.permissionbased.controller.post;
 
-import az.qala.permissionbased.constants.ApiErrorMessage;
-import az.qala.permissionbased.exception.DataNotFoundException;
+import az.qala.permissionbased.model.dto.AddTagDTO;
+import az.qala.permissionbased.model.dto.PostDTO;
+import az.qala.permissionbased.model.dto.TagDTO;
 import az.qala.permissionbased.model.entity.Post;
 import az.qala.permissionbased.model.entity.PostTag;
 import az.qala.permissionbased.model.entity.Tag;
-import az.qala.permissionbased.model.enums.Colors;
-import az.qala.permissionbased.repository.PostRepository;
-import az.qala.permissionbased.repository.PostTagRepository;
-import az.qala.permissionbased.repository.TagRepository;
+import az.qala.permissionbased.model.request.post.CreatePostRequest;
+import az.qala.permissionbased.model.request.post.EditPostRequest;
+import az.qala.permissionbased.model.response.GenericResponse;
 import az.qala.permissionbased.service.post.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-record CreateTagDto(String name, Colors color, String description) {
-}
-
-record AddTagDto(Long postId, Long tagId) {}
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/post")
+@RequestMapping("/posts")
 public class PostController {
     @Autowired
     private PostService postService;
 
+    @GetMapping
+    public ResponseEntity<GenericResponse<List<PostDTO>>> getPosts(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        List<PostDTO> allPosts = postService.getPosts(page, size);
+
+        GenericResponse<List<PostDTO>> response = GenericResponse.success("success", allPosts, HttpStatus.OK.value());
+
+        return ResponseEntity.ok(response);
+    }
 
     @PostMapping
-    public ResponseEntity<Post> createPost(@RequestBody Post postRequest) {
-        Post post = postService.createPost(postRequest.getTitle(), postRequest.getDescription());
+    public ResponseEntity<GenericResponse<PostDTO>> createPost(@RequestBody CreatePostRequest createPostRequest) {
+        PostDTO postDto = postService.createPost(createPostRequest.getTitle(), createPostRequest.getDescription(), createPostRequest.getTagIds());
 
-        return ResponseEntity.ok(post);
+        GenericResponse<PostDTO> response = GenericResponse.success("success", postDto, HttpStatus.OK.value());
+
+        return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/create-tag")
-    public ResponseEntity<Tag> createTag(@RequestBody CreateTagDto dto) {
-        System.out.println();
-        Tag tag = postService.createTag(dto.name(), dto.description(), dto.color());
-        return ResponseEntity.ok(tag);
+    @PatchMapping("/{id}")
+    public ResponseEntity<GenericResponse<PostDTO>> editPost(@PathVariable Long id, @RequestBody EditPostRequest editPostRequest) {
+        PostDTO postDto = postService.editPost(editPostRequest, id);
+
+        GenericResponse<PostDTO> response = GenericResponse.success("success", postDto, HttpStatus.OK.value());
+
+        return ResponseEntity.ok(response);
     }
+
 
     @PostMapping("/add-tag")
-    public ResponseEntity<?> addTagToPost(@RequestBody AddTagDto addTagDto) {
-        PostTag saved = postService.addTagToPost(addTagDto.postId(), addTagDto.tagId());
+    public ResponseEntity<GenericResponse<PostTag>> addTagToPost(@RequestBody AddTagDTO addTagDto) {
+        PostTag postTag = postService.addTagToPost(addTagDto.postId(), addTagDto.tagId());
 
-        return ResponseEntity.ok(saved);
+        GenericResponse<PostTag> response = GenericResponse.success("success", postTag, HttpStatus.OK.value());
+
+        return ResponseEntity.ok(response);
     }
+
 }

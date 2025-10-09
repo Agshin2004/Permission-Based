@@ -4,12 +4,15 @@ import az.qala.permissionbased.model.entity.composite.PostTagId;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "post_tags")
-@Data
+@Getter
+@Setter
 public class PostTag {
     // @EmbddedId - embeds PostTagId as primary key of this entity so it will have 2
     @EmbeddedId
@@ -19,6 +22,7 @@ public class PostTag {
     // This points back to the parent Post
     @ManyToOne
     @MapsId("postId") // coming from PostTagId composite key
+    @JsonIgnore
     private Post post;
 
     @ManyToOne
@@ -27,6 +31,5 @@ public class PostTag {
     private Tag tag;
 
     @Column(name = "added_at")
-    @JsonIgnore
     private LocalDateTime addedAt = LocalDateTime.now();
 }

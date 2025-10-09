@@ -1,7 +1,9 @@
 package az.qala.permissionbased.model.entity.composite;
 
 import jakarta.persistence.Embeddable;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
@@ -11,6 +13,8 @@ import java.io.Serializable;
 // like a tuple key: POST_TAG = (postId, tagId)
 @Embeddable
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class PostTagId implements Serializable {
     private Long postId;
     private Long tagId;

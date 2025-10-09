@@ -5,10 +5,22 @@ import lombok.Data;
 
 import java.time.LocalDateTime;
 
-@AllArgsConstructor
+
 @Data
 public class ApiError {
     private String message;
     private String path;
-    private LocalDateTime timestamp;
+    private LocalDateTime timestamp = LocalDateTime.now();
+
+    public ApiError(String message, String path) {
+        this.message = message;
+        this.path = path;
+    }
+
+    public ApiError(String message, String path, LocalDateTime timestamp) {
+        this.message = message;
+        this.path = path;
+        this.timestamp = timestamp;
+    }
+
 }

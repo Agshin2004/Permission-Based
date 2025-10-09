@@ -1,6 +1,7 @@
 package az.qala.permissionbased.model.entity;
 
 import az.qala.permissionbased.model.enums.Colors;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -22,7 +23,7 @@ public class Tag {
     @Column(name = "color", nullable = false)
     private Colors color;
 
-    @Column(name = "description", nullable = true)
+    @Column(name = "description")
     private String description;
 
     @OneToMany(mappedBy = "tag", cascade = CascadeType.ALL, orphanRemoval = true)
