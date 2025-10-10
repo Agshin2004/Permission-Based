@@ -1,5 +1,6 @@
 package az.qala.permissionbased.controller.post;
 
+import az.qala.permissionbased.constants.ApplicationConstants;
 import az.qala.permissionbased.model.dto.AddTagDTO;
 import az.qala.permissionbased.model.dto.PostDTO;
 import az.qala.permissionbased.model.dto.TagDTO;
@@ -31,7 +32,16 @@ public class PostController {
     ) {
         List<PostDTO> allPosts = postService.getPosts(page, size);
 
-        GenericResponse<List<PostDTO>> response = GenericResponse.success("success", allPosts, HttpStatus.OK.value());
+        GenericResponse<List<PostDTO>> response = GenericResponse.success(ApplicationConstants.SUCCESS, allPosts, HttpStatus.OK.value());
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<GenericResponse<PostDTO>> getPost(@PathVariable Long id) {
+        PostDTO postDto = postService.getPost(id);
+
+        GenericResponse<PostDTO> response = GenericResponse.success(ApplicationConstants.SUCCESS, postDto, HttpStatus.OK.value());
 
         return ResponseEntity.ok(response);
     }
@@ -40,7 +50,7 @@ public class PostController {
     public ResponseEntity<GenericResponse<PostDTO>> createPost(@RequestBody CreatePostRequest createPostRequest) {
         PostDTO postDto = postService.createPost(createPostRequest.getTitle(), createPostRequest.getDescription(), createPostRequest.getTagIds());
 
-        GenericResponse<PostDTO> response = GenericResponse.success("success", postDto, HttpStatus.OK.value());
+        GenericResponse<PostDTO> response = GenericResponse.success(ApplicationConstants.SUCCESS, postDto, HttpStatus.OK.value());
 
         return ResponseEntity.ok(response);
     }
@@ -49,9 +59,20 @@ public class PostController {
     public ResponseEntity<GenericResponse<PostDTO>> editPost(@PathVariable Long id, @RequestBody EditPostRequest editPostRequest) {
         PostDTO postDto = postService.editPost(editPostRequest, id);
 
-        GenericResponse<PostDTO> response = GenericResponse.success("success", postDto, HttpStatus.OK.value());
+        GenericResponse<PostDTO> response = GenericResponse.success(ApplicationConstants.SUCCESS, postDto, HttpStatus.OK.value());
 
         return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<GenericResponse<Void>> deletePost(@PathVariable Long id) {
+        postService.deletePost(id);
+
+        GenericResponse<Void> response = GenericResponse.success(ApplicationConstants.SUCCESS, null, HttpStatus.NO_CONTENT.value());
+
+        return ResponseEntity
+                .status(HttpStatus.NO_CONTENT)
+                .body(response);
     }
 
 
@@ -59,7 +80,7 @@ public class PostController {
     public ResponseEntity<GenericResponse<PostTag>> addTagToPost(@RequestBody AddTagDTO addTagDto) {
         PostTag postTag = postService.addTagToPost(addTagDto.postId(), addTagDto.tagId());
 
-        GenericResponse<PostTag> response = GenericResponse.success("success", postTag, HttpStatus.OK.value());
+        GenericResponse<PostTag> response = GenericResponse.success(ApplicationConstants.SUCCESS, postTag, HttpStatus.OK.value());
 
         return ResponseEntity.ok(response);
     }

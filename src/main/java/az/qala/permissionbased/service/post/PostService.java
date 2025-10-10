@@ -74,6 +74,47 @@ public class PostService {
         return toPostDto(postRepo.save(post));
     }
 
+    public List<PostDTO> getPosts(int page, int size) {
+        if (page < 0) {
+            page = 1;
+        }
+
+        if (page == 0) {
+            ++page;
+        }
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Post> posts = postRepo.findAll(pageable);
+
+        return posts.stream()
+                .map(this::toPostDto).collect(Collectors.toList());
+    }
+
+    public PostDTO getPost(Long postId) {
+        Post post = postRepo.findById(postId)
+                .orElseThrow(() -> new DataNotFoundException(ApiErrorMessage.POST_NOT_FOUND.getMessage(postId)));
+
+        return toPostDto(post);
+    }
+
+    public PostDTO editPost(EditPostRequest editPostRequest, Long postId) {
+        Post post = postRepo.findById(postId)
+                .orElseThrow(() -> new DataNotFoundException(ApiErrorMessage.POST_NOT_FOUND.getMessage(postId)));
+
+        Optional.ofNullable(editPostRequest.getTitle()).ifPresent(post::setTitle);
+        Optional.ofNullable(editPostRequest.getDescription()).ifPresent(post::setDescription);
+        Optional.ofNullable(editPostRequest.getTagIds()).ifPresent(post::setPostTags);
+
+        return toPostDto(post);
+    }
+
+    public void deletePost(Long postId) {
+        Post post = postRepo.findById(postId)
+                .orElseThrow(() -> new DataNotFoundException(ApiErrorMessage.POST_NOT_FOUND.getMessage(postId)));
+
+        postRepo.delete(post);
+    }
+
     /**
      * Add a tag to a post with metadata
      *
@@ -101,30 +142,4 @@ public class PostService {
         return postTagRepo.save(postTag);
     }
 
-    public List<PostDTO> getPosts(int page, int size) {
-        if (page < 0) {
-            page = 1;
-        }
-
-        if (page == 0) {
-            ++page;
-        }
-
-        Pageable pageable = PageRequest.of(page, size);
-        Page<Post> posts = postRepo.findAll(pageable);
-
-        return posts.stream()
-                .map(this::toPostDto).collect(Collectors.toList());
-    }
-
-    public PostDTO editPost(EditPostRequest editPostRequest, Long postId) {
-        Post post = postRepo.findById(postId)
-                .orElseThrow(() -> new DataNotFoundException(ApiErrorMessage.POST_NOT_FOUND.getMessage(postId)));
-
-        Optional.ofNullable(editPostRequest.getTitle()).ifPresent(post::setTitle);
-        Optional.ofNullable(editPostRequest.getDescription()).ifPresent(post::setDescription);
-        Optional.ofNullable(editPostRequest.getTagIds()).ifPresent(post::setPostTags);
-
-        return toPostDto(post);
-    }
 }
